@@ -1,12 +1,8 @@
 import os
 import time
-<<<<<<< HEAD
-import subprocess
-=======
 
 from CLEAN.utils import prepare_infer_fasta_list
 from CLEAN.infer import infer_maxsep
->>>>>>> a13539f (Combined all changes into one commit)
 
 file_path = "/home/selina/ncbi_dataset/fetch.txt"
 data_path = "/home/selina/Bacteria/ncbi_dataset/data/"
@@ -37,15 +33,8 @@ create symbolic link instead of copy raw data in consider of the data size
 # for data in test_data:
 #     os.symlink(data_path + data + "/protein.faa", './data/inputs/'+ data + ".fasta")
 
-<<<<<<< HEAD
-for item in test_data:
-    clean_script = "CLEAN_infer_fasta.py"
-    command = ["python", clean_script, "--fasta_data", item]
-    subprocess.run(command)
-=======
 test_data = ['inputs/' + item for item in test_data]
 
 prepare_infer_fasta_list(test_data) 
 # for data in test_data:
 #     infer_maxsep(train_data, 'inputs/' + data, report_metrics=False, pretrained=True, gmm = './data/pretrained/gmm_ensumble.pkl')
->>>>>>> a13539f (Combined all changes into one commit)
