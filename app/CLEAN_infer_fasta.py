@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 from CLEAN.utils import *
 from CLEAN.infer import infer_maxsep
 
@@ -21,7 +22,10 @@ def main():
     prepare_infer_fasta(test_data) 
     # inferred results is in
     # results/[args.fasta_data].csv
+    start_time = time.time()
     infer_maxsep(train_data, test_data, report_metrics=False, pretrained=True, gmm = './data/pretrained/gmm_ensumble.pkl')
+    print("--- %s seconds ---" % (time.time() - start_time)) #debug
+    
     # removing dummy csv file
     os.remove("data/"+ test_data +'.csv')
     

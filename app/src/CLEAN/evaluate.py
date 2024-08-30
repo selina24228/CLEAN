@@ -45,7 +45,7 @@ def write_max_sep_choices(df, csv_name, first_grad=True, use_max_grad=False, gmm
                 dist_i = infer_confidence_gmm(dist_i, gmm_lst)
             dist_str = "{:.4f}".format(dist_i)
             all_test_EC.add(EC_i)
-            ec.append('EC:' + str(EC_i) + '/' + dist_str)
+            ec.append('EC:' + str(EC_i)) # Selina, by purpose of the project.
         ec.insert(0, col)
         csvwriter.writerow(ec)
     return

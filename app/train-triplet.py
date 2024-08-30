@@ -8,6 +8,7 @@ from CLEAN.utils import *
 import torch.nn as nn
 import argparse
 from CLEAN.distance_map import get_dist_map
+from CLEAN.gpu_handler import get_best_gpu
 
 
 def parse():
@@ -74,7 +75,8 @@ def main():
     ec_id = {key: list(ec_id_dict[key]) for key in ec_id_dict.keys()}
     #======================== override args ====================#
     use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")
+    best_gpu = get_best_gpu()
+    device = torch.device(f"cuda:{best_gpu}" if use_cuda else "cpu")
     dtype = torch.float32
     lr, epochs = args.learning_rate, args.epoch
     model_name = args.model_name

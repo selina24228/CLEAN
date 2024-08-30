@@ -3,6 +3,8 @@ from .utils import *
 from .model import LayerNormNet
 from .distance_map import *
 from .evaluate import *
+from .gpu_handler import get_best_gpu
+
 import pandas as pd
 import warnings
 
@@ -13,7 +15,8 @@ warnings.warn = warn
 def infer_pvalue(train_data, test_data, p_value = 1e-5, nk_random = 20, 
                  report_metrics = False, pretrained=True, model_name=None):
     use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")
+    best_gpu = get_best_gpu()
+    device = torch.device(f"cuda:{best_gpu}" if use_cuda else "cpu")
     dtype = torch.float32
     id_ec_train, ec_id_dict_train = get_ec_id_dict('./data/' + train_data + '.csv')
     id_ec_test, _ = get_ec_id_dict('./data/' + test_data + '.csv')
@@ -74,8 +77,12 @@ def infer_pvalue(train_data, test_data, p_value = 1e-5, nk_random = 20,
 
 def infer_maxsep(train_data, test_data, report_metrics = False, 
                  pretrained=True, model_name=None, gmm = None):
+    
+    print("######## infer_maxsep ########")
+
     use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")
+    best_gpu = get_best_gpu()
+    device = torch.device(f"cuda:{best_gpu}" if use_cuda else "cpu")
     dtype = torch.float32
     id_ec_train, ec_id_dict_train = get_ec_id_dict('./data/' + train_data + '.csv')
     id_ec_test, _ = get_ec_id_dict('./data/' + test_data + '.csv')
@@ -83,6 +90,9 @@ def infer_maxsep(train_data, test_data, report_metrics = False,
     # NOTE: change this to LayerNormNet(512, 256, device, dtype) 
     # and rebuild with [python build.py install]
     # if inferencing on model trained with supconH loss
+    
+    print("######## load model ########")
+    
     model = LayerNormNet(512, 128, device, dtype)
     
     if pretrained:
@@ -99,6 +109,9 @@ def infer_maxsep(train_data, test_data, report_metrics = False,
     model.load_state_dict(checkpoint)
     model.eval()
     # load precomputed EC cluster center embeddings if possible
+
+    print("######## load EC embedding ########")
+
     if train_data == "split70":
         emb_train = torch.load('./data/pretrained/70.pt', map_location=device)
     elif train_data == "split100":

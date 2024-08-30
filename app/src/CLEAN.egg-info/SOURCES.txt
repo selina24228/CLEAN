@@ -3,6 +3,7 @@ src/CLEAN/__init__.py
 src/CLEAN/dataloader.py
 src/CLEAN/distance_map.py
 src/CLEAN/evaluate.py
+src/CLEAN/gpu_handler.py
 src/CLEAN/infer.py
 src/CLEAN/losses.py
 src/CLEAN/model.py

@@ -6,8 +6,10 @@ from re import L
 import torch
 import numpy as np
 import subprocess
+import threading
 import pickle
 from .distance_map import get_dist_map
+from .gpu_handler import get_best_gpu
 
 def seed_everything(seed=1234):
     random.seed(seed)
@@ -114,7 +116,7 @@ def ensure_dirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
         
-def retrive_esm1b_embedding(fasta_name):
+def retrive_esm1b_embedding(fasta_name):    
     esm_script = "esm/scripts/extract.py"
     esm_out = "data/esm_data"
     esm_type = "esm1b_t33_650M_UR50S"
@@ -127,13 +129,24 @@ def compute_esm_distance(train_file):
     ensure_dirs('./data/distance_map/')
     _, ec_id_dict = get_ec_id_dict('./data/' + train_file + '.csv')
     use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")
+    best_gpu = get_best_gpu()
+    device = torch.device(f"cuda:{best_gpu}" if use_cuda else "cpu")
     dtype = torch.float32
     esm_emb = esm_embedding(ec_id_dict, device, dtype)
     esm_dist = get_dist_map(ec_id_dict, esm_emb, device, dtype)
     pickle.dump(esm_dist, open('./data/distance_map/' + train_file + '.pkl', 'wb'))
     pickle.dump(esm_emb, open('./data/distance_map/' + train_file + '_esm.pkl', 'wb'))
+
+def prepare_infer_fasta_list(fasta_list):
+    threads = []
+    for fasta_name in fasta_list:
+        t = threading.Thread(target=prepare_infer_fasta, args=(fasta_name,))
+        threads.append(t)
+        t.start()
     
+    for t in threads:
+        t.join()
+
 def prepare_infer_fasta(fasta_name):
     retrive_esm1b_embedding(fasta_name)
     csvfile = open('./data/' + fasta_name +'.csv', 'w', newline='')

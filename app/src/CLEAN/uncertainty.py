@@ -4,6 +4,8 @@ from .model import LayerNormNet
 from .distance_map import *
 from .evaluate import *
 from .dataloader import *
+from .gpu_handler import get_best_gpu
+
 import pandas as pd
 import warnings
 
@@ -24,7 +26,8 @@ def get_cluster_cen(model_emb_train, model_emb_test,
 def get_dist(max_ec, train_data, report_metrics = False, 
                  pretrained=True, model_name=None, target = 300, neg_target = 2000, negative = None):
     use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")
+    best_gpu = get_best_gpu()
+    device = torch.device(f"cuda:{best_gpu}" if use_cuda else "cpu")
     dtype = torch.float32
     id_ec_train, ec_id_dict_train = get_ec_id_dict('./data/' + train_data + '.csv')
 
